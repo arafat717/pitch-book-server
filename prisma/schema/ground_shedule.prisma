@@ -1,0 +1,13 @@
+model GroundSchedule {
+  id              String @id @default(uuid())
+  groundId        String @map("ground_id")
+  dayOfWeek       Int    @map("day_of_week")
+  openTime        String @map("open_time")
+  closeTime       String @map("close_time")
+  slotDurationMin Int    @map("slot_duration_min")
+
+  ground Ground @relation(fields: [groundId], references: [id])
+
+  @@index([groundId])
+  @@map("ground_schedules")
+}

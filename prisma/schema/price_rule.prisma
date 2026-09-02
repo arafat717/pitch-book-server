@@ -1,0 +1,13 @@
+model PricingRule {
+  id        String  @id @default(uuid())
+  groundId  String  @map("ground_id")
+  dayType   DayType @map("day_type")
+  startTime String  @map("start_time")
+  endTime   String  @map("end_time")
+  price     Decimal @db.Decimal(10, 2)
+
+  ground Ground @relation(fields: [groundId], references: [id])
+
+  @@index([groundId])
+  @@map("pricing_rules")
+}

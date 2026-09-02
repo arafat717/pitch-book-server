@@ -1,0 +1,23 @@
+model Ground {
+  id         String       @id @default(uuid())
+  ownerId    String       @map("owner_id")
+  name       String
+  address    String
+  latitude   Float
+  longitude  Float
+  sportTypes String[]     @map("sport_types")
+  status     GroundStatus @default(ACTIVE)
+  deletedAt  DateTime?    @map("deleted_at")
+  createdAt  DateTime     @default(now()) @map("created_at")
+
+  owner     OwnerProfile     @relation(fields: [ownerId], references: [id])
+  photos    GroundPhoto[]
+  schedules GroundSchedule[]
+  pricing   PricingRule[]
+  slots     Slot[]
+  bookings  Booking[]
+
+  @@index([latitude, longitude])
+  @@index([ownerId])
+  @@map("grounds")
+}

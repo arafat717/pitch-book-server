@@ -1,0 +1,10 @@
+model GroundPhoto {
+  id       String @id @default(uuid())
+  groundId String @map("ground_id")
+  url      String
+
+  ground Ground @relation(fields: [groundId], references: [id])
+
+  @@index([groundId])
+  @@map("ground_photos")
+}

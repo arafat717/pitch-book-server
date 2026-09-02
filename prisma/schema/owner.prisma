@@ -1,0 +1,13 @@
+model OwnerProfile {
+  id                 String             @id @default(uuid())
+  userId             String             @unique @map("user_id")
+  businessName       String             @map("business_name")
+  licenseDocUrl      String?            @map("license_doc_url")
+  verificationStatus VerificationStatus @default(PENDING) @map("verification_status")
+  commissionRate     Float              @default(0.10) @map("commission_rate")
+
+  user    User     @relation(fields: [userId], references: [id])
+  grounds Ground[]
+
+  @@map("owner_profiles")
+}

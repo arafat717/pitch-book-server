@@ -1,0 +1,14 @@
+model Payout {
+  id          String       @id @default(uuid())
+  ownerId     String       @map("owner_id")
+  amount      Decimal      @db.Decimal(10, 2)
+  status      PayoutStatus @default(REQUESTED)
+  requestedAt DateTime     @default(now()) @map("requested_at")
+  paidAt      DateTime?    @map("paid_at")
+
+  owner User @relation(fields: [ownerId], references: [id])
+
+  @@index([ownerId])
+  @@index([status])
+  @@map("payouts")
+}

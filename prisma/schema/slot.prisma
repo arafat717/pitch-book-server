@@ -1,0 +1,16 @@
+model Slot {
+  id        String     @id @default(uuid())
+  groundId  String     @map("ground_id")
+  date      DateTime   @db.Date
+  startTime String     @map("start_time")
+  endTime   String     @map("end_time")
+  status    SlotStatus @default(AVAILABLE)
+  price     Decimal    @db.Decimal(10, 2)
+
+  ground  Ground   @relation(fields: [groundId], references: [id])
+  booking Booking?
+
+  @@unique([groundId, date, startTime])
+  @@index([groundId, date])
+  @@map("slots")
+}
