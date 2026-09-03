@@ -145,7 +145,7 @@ const verifyMail = async (payload: IVerifyOtp) => {
   await transporter.sendMail({
     from: config.smtp_user,
     to: email,
-    subject: "Welcome to book doctor",
+    subject: "Welcome to Turfy",
     // text: `Your fogot password otp is ${otp}`,
     html,
   });
@@ -498,7 +498,7 @@ const forgotPassword = async (payload: IForgotPasswordPayload) => {
 
 const resetPassword = async (payload: IResetPasswordPayload) => {
   const { email, otp, newPassword } = payload;
-
+  console.log("payload", payload);
   const isUserExist = await prisma.user.findUnique({
     where: {
       email,
@@ -568,8 +568,6 @@ const resetPassword = async (payload: IResetPasswordPayload) => {
     from: config.email_sender,
     to: isUserExist.email,
     subject: "Password Changed",
-    // text : `Your OTP is ${otp}`
-    // html: `<h1>Your Password Is Changed</h1>`
     html,
   });
 };

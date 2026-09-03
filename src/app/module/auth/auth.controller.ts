@@ -12,7 +12,7 @@ const registerPlayer = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: "User registered successfully",
+    message: "Please check your email for verification OTP",
     data: null,
   });
 });
@@ -168,7 +168,7 @@ const forgotPassword = catchAsync(async (req: Request, res: Response) => {
 });
 const resetPassword = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
-
+  console.log("payload", payload);
   await AuthService.resetPassword(payload);
 
   sendResponse(res, {
