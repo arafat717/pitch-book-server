@@ -65,3 +65,12 @@ enum PayoutStatus {
   APPROVED
   PAID
 }
+
+enum SportType {
+  FUTSAL
+  CRICKET
+  BADMINTON
+  TENNIS
+  VOLLEYBALL
+  BASKETBALL
+}
