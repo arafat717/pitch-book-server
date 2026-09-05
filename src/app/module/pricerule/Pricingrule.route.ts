@@ -7,26 +7,26 @@ import { pricingRuleController } from "./Pricingrule.controller";
 const router = Router();
 
 router.post(
-  "/grounds/:groundId/pricing-rules",
+  "/:groundId/pricing-rules",
   auth(Role.OWNER),
   validateRequest(PricingRuleValidation.pricingRuleValidationSchema),
   pricingRuleController.createPricingRule,
 );
 
 router.get(
-  "/grounds/:groundId/pricing-rules",
+  "/:groundId/pricing-rules",
   pricingRuleController.getPricingRulesByGround,
 );
 
 router.patch(
-  "/grounds/:groundId/pricing-rules/:id",
+  "/:groundId/pricing-rules/:id",
   auth(Role.OWNER),
   validateRequest(PricingRuleValidation.updatePricingRuleValidationSchema),
   pricingRuleController.updatePricingRule,
 );
 
 router.delete(
-  "/grounds/:groundId/pricing-rules/:id",
+  "/:groundId/pricing-rules/:id",
   auth(Role.OWNER),
   pricingRuleController.deletePricingRule,
 );

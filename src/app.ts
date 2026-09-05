@@ -1,9 +1,7 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import crypto from "crypto";
 import express, {
   type Application,
-  NextFunction,
   type Request,
   type Response,
 } from "express";
@@ -17,6 +15,8 @@ import { adminRoutes } from "./app/module/admin/admin.route";
 import { groundRoutes } from "./app/module/ground/ground.route";
 import { groundPhotoRoutes } from "./app/module/groundphoto/groundphoto.route";
 import { GroundScheduleRoutes } from "./app/module/groundShedule/groundSchedule.routes";
+import { PricingRuleRoutes } from "./app/module/pricerule/Pricingrule.route";
+import { SlotRoutes } from "./app/module/slot/Slot.route";
 
 const app: Application = express();
 
@@ -39,6 +39,8 @@ app.use("/api/v1/owner", OwnerRoutes);
 app.use("/api/v1/ground", groundRoutes);
 app.use("/api/v1/ground-photo", groundPhotoRoutes);
 app.use("/api/v1/ground-schedule", GroundScheduleRoutes);
+app.use("/api/v1/ground-price", PricingRuleRoutes);
+app.use("/api/v1/ground-slots", SlotRoutes);
 app.use("/api/v1/admin", adminRoutes);
 
 // Basic route

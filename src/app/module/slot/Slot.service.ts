@@ -155,6 +155,54 @@ const generateSlots = async (
   return { created: result.count };
 };
 
+// Recalculates price on existing slots using the ground's CURRENT pricing
+// rules. Needed because generateSlots copies price onto a slot once, at
+// creation time - a new/changed PricingRule never touches slots that
+// already exist. Only touches AVAILABLE slots; a BOOKED slot's price is
+// what the player already paid and must never change retroactively.
+const repriceSlots = async (
+  groundId: string,
+  userId: string,
+  payload: GenerateSlotsPayload,
+) => {
+  await checkGroundOwnership(groundId, userId);
+
+  const pricingRules = await prisma.pricingRule.findMany({
+    where: { groundId },
+  });
+  if (pricingRules.length === 0) {
+    throw new Error("No pricing rules found for this ground");
+  }
+
+  const slots = await prisma.slot.findMany({
+    where: {
+      groundId,
+      date: {
+        gte: new Date(payload.fromDate),
+        lte: new Date(payload.toDate),
+      },
+      status: "AVAILABLE",
+    },
+  });
+
+  let updated = 0;
+
+  for (const slot of slots) {
+    const dayType = resolveDayType(new Date(slot.date).getDay());
+    const newPrice = findPriceForSlot(pricingRules, dayType, slot.startTime);
+
+    if (newPrice !== null && Number(slot.price) !== newPrice) {
+      await prisma.slot.update({
+        where: { id: slot.id },
+        data: { price: newPrice },
+      });
+      updated += 1;
+    }
+  }
+
+  return { updated, checked: slots.length };
+};
+
 const getSlotsByDate = async (groundId: string, date: string) => {
   if (!date) {
     throw new Error("date query parameter is required (YYYY-MM-DD)");
@@ -214,6 +262,7 @@ const unblockSlot = async (
 
 export const slotService = {
   generateSlots,
+  repriceSlots,
   getSlotsByDate,
   blockSlot,
   unblockSlot,

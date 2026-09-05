@@ -22,6 +22,24 @@ const generateSlots = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const repriceSlots = catchAsync(async (req: Request, res: Response) => {
+  const { groundId } = req.params;
+  const userId = req.user?.userId as string;
+
+  const result = await slotService.repriceSlots(
+    groundId as string,
+    userId,
+    req.body,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: `${result.updated} of ${result.checked} slot(s) repriced`,
+    data: result,
+  });
+});
+
 const getSlotsByDate = catchAsync(async (req: Request, res: Response) => {
   const { groundId } = req.params;
   const { date } = req.query;
@@ -77,6 +95,7 @@ const unblockSlot = catchAsync(async (req: Request, res: Response) => {
 
 export const slotController = {
   generateSlots,
+  repriceSlots,
   getSlotsByDate,
   blockSlot,
   unblockSlot,
