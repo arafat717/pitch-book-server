@@ -9,7 +9,7 @@ const router = Router();
 router.post(
   "/grounds/:groundId/schedules",
   auth(Role.OWNER),
-  validateRequest(GroundScheduleValidation.createSchedule),
+  validateRequest(GroundScheduleValidation.scheduleValidationSchema),
   groundScheduleController.createSchedule,
 );
 
@@ -21,7 +21,7 @@ router.get(
 router.patch(
   "/grounds/:groundId/schedules/:id",
   auth(Role.OWNER),
-  validateRequest(GroundScheduleValidation.updateSchedule),
+  validateRequest(GroundScheduleValidation.updateScheduleValidationSchema),
   groundScheduleController.updateSchedule,
 );
 

@@ -1,4 +1,3 @@
-import httpStatus from "http-status";
 import { prisma } from "../../lib/prisma";
 
 interface CreateSchedulePayload {
@@ -14,11 +13,18 @@ const checkGroundOwnership = async (groundId: string, userId: string) => {
     select: { ownerId: true },
   });
 
+  const user = await prisma.ownerProfile.findUnique({
+    where: { id: ground?.ownerId },
+    select: { userId: true },
+  });
+
+  // console.log("ids==>", user?.userId, userId);
+
   if (!ground) {
     throw new Error("Ground not found");
   }
 
-  if (ground.ownerId !== userId) {
+  if (user?.userId !== userId) {
     throw new Error(
       "You are not authorized to modify schedules for this ground",
     );

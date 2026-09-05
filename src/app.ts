@@ -16,6 +16,7 @@ import { OwnerRoutes } from "./app/module/owner/owner.route";
 import { adminRoutes } from "./app/module/admin/admin.route";
 import { groundRoutes } from "./app/module/ground/ground.route";
 import { groundPhotoRoutes } from "./app/module/groundphoto/groundphoto.route";
+import { GroundScheduleRoutes } from "./app/module/groundShedule/groundSchedule.routes";
 
 const app: Application = express();
 
@@ -37,6 +38,7 @@ app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/owner", OwnerRoutes);
 app.use("/api/v1/ground", groundRoutes);
 app.use("/api/v1/ground-photo", groundPhotoRoutes);
+app.use("/api/v1/ground-schedule", GroundScheduleRoutes);
 app.use("/api/v1/admin", adminRoutes);
 
 // Basic route
