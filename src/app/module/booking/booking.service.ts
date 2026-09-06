@@ -14,6 +14,16 @@ type BookingPayload = { slotId?: string; bookingId?: string };
 const getCallbackUrl = () =>
   `${config.bkash_callback_url}/api/v1/book-slot/payment/callback`;
 
+const getPaymentRedirectUrl = (status: string) => {
+  const fallbackUrl = `${config.frontend_url}/dashboard/bookings?status=${status}`;
+  const configuredUrl =
+    status === "success"
+      ? config.payment_success_url
+      : config.payment_failure_url;
+
+  return configuredUrl || fallbackUrl;
+};
+
 const createBkashPayment = async (
   bookingId: string,
   amount: number,
@@ -287,7 +297,7 @@ const bookSlotCallback = async (query: {
   }
 
   return {
-    redirectUrl: `${config.frontend_url}/dashboard/bookings?status=${query.status}`,
+    redirectUrl: getPaymentRedirectUrl(query.status),
   };
 };
 
