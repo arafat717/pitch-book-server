@@ -1,7 +1,7 @@
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import httpStatus from "http-status";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { groundService } from "./ground.service";
 
 const createGround = catchAsync(async (req: Request, res: Response) => {
@@ -17,12 +17,13 @@ const createGround = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllGround = catchAsync(async (req: Request, res: Response) => {
-  const result = await groundService.getAllGround();
+  const result = await groundService.getAllGround(req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "Grounds retrieved successfully",
-    data: result,
+    data: result.data,
+    meta: result.meta,
   });
 });
 
