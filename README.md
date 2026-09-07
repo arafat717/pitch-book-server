@@ -4,7 +4,7 @@ Backend API for a turf and sports-ground booking platform. Players can discover 
 
 ## Stack
 
-Node.js, Express, TypeScript, PostgreSQL, Prisma, Redis, JWT, bKash, Nodemailer, and PDFKit.
+Node.js, Express, TypeScript, PostgreSQL, Prisma, Redis, JWT, bKash, Nodemailer, and PDFKit, NPM.
 
 ## Features
 
