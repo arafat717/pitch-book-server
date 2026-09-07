@@ -18,7 +18,6 @@ const checkGroundOwnership = async (groundId: string, userId: string) => {
     select: { userId: true },
   });
 
-  // console.log("ids==>", user?.userId, userId);
 
   if (!ground) {
     throw new Error("Ground not found");

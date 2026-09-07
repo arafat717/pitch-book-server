@@ -1,8 +1,15 @@
 import { prisma } from "../../lib/prisma";
 import { SportType } from "../../../generated/prisma/enums";
-import type { GroundQueryParams } from "./ground.interface";
+import type {
+  CreateGroundPayload,
+  GroundQueryParams,
+  UpdateGroundPayload,
+} from "./ground.interface";
 
-const createGround = async (groundData: any, userId: string) => {
+const createGround = async (
+  groundData: CreateGroundPayload,
+  userId: string,
+) => {
   console.log("uesrId here ==", userId);
   const existingGround = await prisma.user.findFirst({
     where: {
@@ -113,7 +120,10 @@ const getSingleGround = async (userId: string) => {
   return existingGround;
 };
 
-const updateGround = async (groundData: any, userId: string) => {
+const updateGround = async (
+  groundData: UpdateGroundPayload,
+  userId: string,
+) => {
   const existingGround = await prisma.ground.findFirst({
     where: {
       id: userId,
