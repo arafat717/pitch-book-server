@@ -1,6 +1,34 @@
 import config from "../config";
 import { redisClient } from "./redis";
 
+export const readBkashResponse = async <T>(
+  response: Response,
+  operation: string,
+) => {
+  const body = await response.text();
+  let result: T | undefined;
+
+  try {
+    result = body ? (JSON.parse(body) as T) : undefined;
+  } catch {
+    throw new Error(
+      `Bkash ${operation} returned a non-JSON response (${response.status}): ${body.slice(0, 300)}`,
+    );
+  }
+
+  if (!response.ok) {
+    const message =
+      typeof result === "object" && result !== null && "statusMessage" in result
+        ? String(result.statusMessage)
+        : body || response.statusText;
+    throw new Error(
+      `Bkash ${operation} failed (${response.status}): ${message}`,
+    );
+  }
+
+  return result;
+};
+
 export const getBkashIdToken = async () => {
   try {
     const bkashIdTokenKey = "bkash:idToken";
@@ -35,7 +63,12 @@ export const getBkashIdToken = async () => {
         },
       );
 
-      const bkashRefreshResponse = await response.json();
+      const bkashRefreshResponse = await readBkashResponse<{
+        id_token?: string;
+      }>(response, "token refresh");
+      if (!bkashRefreshResponse?.id_token) {
+        throw new Error("Bkash token refresh did not return an access token");
+      }
       bkashToken = bkashRefreshResponse.id_token as string;
 
       await redisClient.set(bkashIdTokenKey, bkashToken, {
@@ -69,11 +102,15 @@ export const getBkashIdToken = async () => {
       },
     );
 
-    if (!response.ok) {
-      throw new Error("Bkash access token grant failed!");
+    const result = await readBkashResponse<{
+      id_token?: string;
+      refresh_token?: string;
+    }>(response, "access token grant");
+    if (!result?.id_token || !result.refresh_token) {
+      throw new Error(
+        "Bkash access token grant returned incomplete credentials",
+      );
     }
-
-    const result = await response.json();
     // set bksah id token to radis
     await redisClient.set(bkashIdTokenKey, result.id_token, {
       expiration: {
@@ -90,7 +127,7 @@ export const getBkashIdToken = async () => {
     });
 
     return result.id_token;
-  } catch (error: any) {
-    throw new Error(error);
+  } catch (error) {
+    throw error instanceof Error ? error : new Error(String(error));
   }
 };

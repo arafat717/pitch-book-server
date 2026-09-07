@@ -4,15 +4,19 @@ import {
   SlotStatus,
 } from "../../../generated/prisma/enums";
 import config from "../../config";
-import { getBkashIdToken } from "../../lib/bkash";
+import { getBkashIdToken, readBkashResponse } from "../../lib/bkash";
 import { prisma } from "../../lib/prisma";
 import { sendBookingConfirmationMail } from "../../utils/bookingConfirmationMail";
 
 type AuthenticatedUser = { userId: string; email: string };
 type BookingPayload = { slotId?: string; bookingId?: string };
 
-const getCallbackUrl = () =>
-  `${config.bkash_callback_url}/api/v1/book-slot/payment/callback`;
+const getCallbackUrl = () => {
+  const baseUrl = config.bkash_callback_url
+    .replace(/\/+$/, "")
+    .replace(/\/api\/v1$/, "");
+  return `${baseUrl}/api/v1/book-slot/payment/callback`;
+};
 
 const getPaymentRedirectUrl = (status: string) => {
   const fallbackUrl = `${config.frontend_url}/dashboard/bookings?status=${status}`;
@@ -54,9 +58,12 @@ const createBkashPayment = async (
     },
   );
 
-  const result = await response.json();
-  if (!response.ok || !result.paymentID || !result.bkashURL) {
-    throw new Error(result.statusMessage || "Bkash payment creation failed");
+  const result = await readBkashResponse<{
+    paymentID?: string;
+    bkashURL?: string;
+  }>(response, "payment creation");
+  if (!result?.paymentID || !result.bkashURL) {
+    throw new Error("Bkash payment creation returned incomplete details");
   }
 
   return result as { paymentID: string; bkashURL: string };
@@ -184,7 +191,7 @@ const cancelBookingSlot = async (
         }),
       },
     );
-    if (!response.ok) throw new Error("Bkash refund failed");
+    await readBkashResponse(response, "refund");
   }
 
   return prisma.$transaction(async (tx) => {
@@ -241,9 +248,12 @@ const bookSlotCallback = async (query: {
         body: JSON.stringify({ paymentID: query.paymentID }),
       },
     );
-    const result = await response.json();
-    if (!response.ok || result.statusCode === "0001") {
-      throw new Error(result.statusMessage || "Bkash payment execution failed");
+    const result = await readBkashResponse<{
+      statusCode?: string;
+      trxID?: string;
+    }>(response, "payment execution");
+    if (result?.statusCode === "0001") {
+      throw new Error("Bkash payment execution was rejected");
     }
 
     const confirmedBooking = await prisma.$transaction(async (tx) => {
@@ -251,7 +261,7 @@ const bookSlotCallback = async (query: {
         where: { id: payment.id },
         data: {
           status: PaymentStatus.SUCCESS,
-          transactionId: `${query.paymentID}:${result.trxID || query.paymentID}`,
+          transactionId: `${query.paymentID}:${result?.trxID || query.paymentID}`,
           paidAt: new Date(),
         },
       });
