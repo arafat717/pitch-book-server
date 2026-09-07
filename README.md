@@ -1,4 +1,4 @@
-# Pitch Book Server (Terfy)
+# Ground Book Server (Terfy)
 
 Backend API for a turf and sports-ground booking platform. Players can discover available slots, create bookings, pay through bKash, and receive booking confirmation details by email as a PDF. Owners manage grounds and payouts, while admins manage platform operations.
 
