@@ -4,7 +4,7 @@ const RegistrationZodSchema = z.object({
   name: z
     .string("Not A String!!!!!")
     .min(3, "Name must atleast 3 characters long!!!")
-    .max(10),
+    .max(20, "Name must be at most 20 characters long!!!"),
   email: z.email("Not email!!"),
   password: z
     .string()
