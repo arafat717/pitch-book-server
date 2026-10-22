@@ -385,12 +385,12 @@ const googleLogin = async (payload: IGoogleLoginPayload) => {
           googleId: googleIdTokenPayload.sub,
           authProvider: AuthProvider.GOOGLE,
           emailVerified: true,
-          player: {
-            create: {
-              name: googleIdTokenPayload.name,
-              email: googleIdTokenPayload.email,
-            },
-          },
+          // player: {
+          //   create: {
+          //     name: googleIdTokenPayload.name,
+          //     email: googleIdTokenPayload.email,
+          //   },
+          // },
         },
       });
     }
