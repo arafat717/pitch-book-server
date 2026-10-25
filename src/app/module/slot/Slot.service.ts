@@ -203,18 +203,49 @@ const repriceSlots = async (
   return { updated, checked: slots.length };
 };
 
-const getSlotsByDate = async (groundId: string, date: string) => {
-  if (!date) {
-    throw new Error("date query parameter is required (YYYY-MM-DD)");
-  }
+const getSlotsByDate = async (groundId: string) => {
+  const now = new Date();
+
+  // Start of today
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+
+  // Start of tomorrow
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  // Current time in HH:mm format
+  const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+    now.getMinutes(),
+  ).padStart(2, "0")}`;
 
   return await prisma.slot.findMany({
     where: {
       groundId,
-      date: new Date(date),
-      status: { not: "BLOCKED" },
+      status: {
+        not: "BLOCKED",
+      },
+      OR: [
+        // All slots from tomorrow onward
+        {
+          date: {
+            gte: tomorrow,
+          },
+        },
+
+        // Today's slots that haven't started yet
+        {
+          date: {
+            gte: today,
+            lt: tomorrow,
+          },
+          startTime: {
+            gte: currentTime,
+          },
+        },
+      ],
     },
-    orderBy: { startTime: "asc" },
+    orderBy: [{ date: "asc" }, { startTime: "asc" }],
   });
 };
 

@@ -42,11 +42,11 @@ const repriceSlots = catchAsync(async (req: Request, res: Response) => {
 
 const getSlotsByDate = catchAsync(async (req: Request, res: Response) => {
   const { groundId } = req.params;
-  const { date } = req.query;
+  // const { date } = req.query;
 
   const result = await slotService.getSlotsByDate(
     groundId as string,
-    date as string,
+    // date as string,
   );
 
   sendResponse(res, {

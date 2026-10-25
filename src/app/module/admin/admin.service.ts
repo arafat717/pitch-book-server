@@ -2,28 +2,34 @@ import { VerificationStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 
 const approveOwnerApplication = async (userId: string) => {
-  const transactionResult = await prisma.$transaction(async (tx) => {
-    const userExists = await prisma.ownerProfile.findUnique({
-      where: { userId: userId },
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const userExists = await tx.ownerProfile.findUnique({
+        where: { userId },
+      });
+
+      if (!userExists) {
+        throw new Error("Owner application not found for the given user ID");
+      }
+
+      const updatedProfile = await tx.ownerProfile.update({
+        where: { userId },
+        data: {
+          verificationStatus: VerificationStatus.VERIFIED,
+        },
+      });
+
+      await tx.user.update({
+        where: { id: userId },
+        data: { role: "OWNER" },
+      });
+
+      return updatedProfile;
     });
-
-    if (!userExists) {
-      throw new Error("Owner application not found for the given user ID");
-    }
-
-    const updatedProfile = await prisma.ownerProfile.update({
-      where: { userId: userId },
-      data: { verificationStatus: VerificationStatus.VERIFIED },
-    });
-
-    await prisma.user.update({
-      where: { id: userId },
-      data: { role: "OWNER" },
-    });
-
-    return updatedProfile;
-  });
-  return transactionResult;
+  } catch (error) {
+    console.error("Approve owner application failed:", error);
+    throw error;
+  }
 };
 
 const rejectOwnerApplication = async (userId: string) => {
