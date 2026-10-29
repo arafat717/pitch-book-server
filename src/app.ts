@@ -24,7 +24,7 @@ const app: Application = express();
 
 app.use(
   cors({
-    origin: config.frontend_url,
+    origin: "https://turfy-sports.vercel.app",
     credentials: true,
   }),
 );
