@@ -1,5 +1,9 @@
 import type { UploadApiResponse } from "cloudinary";
+import ejs from "ejs";
+import path from "path";
+import config from "../../config";
 import { cloudinary } from "../../lib/cloudinary";
+import { transporter } from "../../lib/nodemailer";
 import { prisma } from "../../lib/prisma";
 import { OwnerRequestPayload } from "./owner.interface";
 
@@ -45,12 +49,40 @@ const requestForOwnerAccount = async (
         businessName: payload.businessName,
         licenseDocUrl: uploadResult.secure_url,
       },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
     });
 
-    return ownerProfile;
+    return { ownerProfile, user: ownerProfile.user };
   });
 
-  return transactionResult;
+  const { ownerProfile, user } = transactionResult;
+  const templatePath = path.join(
+    process.cwd(),
+    "src",
+    "app",
+    "templates",
+    "owner-application-confirmation.ejs",
+  );
+  const html = await ejs.renderFile(templatePath, {
+    name: user.name,
+    businessName: ownerProfile.businessName,
+  });
+
+  await transporter.sendMail({
+    from: config.email_sender || config.smtp_user,
+    to: user.email,
+    subject: "Owner application received",
+    html,
+  });
+
+  return ownerProfile;
 };
 
 export const ownerService = {
