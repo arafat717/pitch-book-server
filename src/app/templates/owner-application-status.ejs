@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Owner application <%= status %></title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background-color: #f4f7f9;
+      font-family: Arial, Helvetica, sans-serif;
+    "
+  >
+    <div
+      style="
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 32px;
+        background-color: #ffffff;
+        border-radius: 14px;
+        color: #374151;
+        line-height: 1.7;
+      "
+    >
+      <h1 style="color: #14532d">Turfy</h1>
+      <h2>Owner application <%= status %></h2>
+      <p>Hi <%= name %>,</p>
+      <% if (status === "approved") { %>
+      <p>
+        Your application for <strong><%= businessName %></strong> has been
+        approved. Your account is now set up as an owner.
+      </p>
+      <% } else { %>
+      <p>
+        Your application for <strong><%= businessName %></strong> was not
+        approved at this time.
+      </p>
+      <% } %>
+      <p>Thank you,<br />The Turfy team</p>
+    </div>
+  </body>
+</html>

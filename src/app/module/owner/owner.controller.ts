@@ -36,6 +36,35 @@ const requestOwnerAccount = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllOwnerRequests = catchAsync(async (req: Request, res: Response) => {
+  const result = await ownerService.getAllOwnerRequests(req.query);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Owner requests retrieved successfully",
+    data: result.data,
+    meta: result.meta,
+  });
+});
+
+const getSingleOwnerRequest = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await ownerService.getSingleOwnerRequest(
+      req.params.userId as string,
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Owner request retrieved successfully",
+      data: result,
+    });
+  },
+);
+
 export const ownerController = {
   requestOwnerAccount,
+  getAllOwnerRequests,
+  getSingleOwnerRequest,
 };

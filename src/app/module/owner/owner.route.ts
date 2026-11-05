@@ -8,6 +8,18 @@ import { upload } from "../../lib/multer";
 
 const router = Router();
 
+router.get(
+  "/owner-request",
+  auth(Role.ADMIN),
+  ownerController.getAllOwnerRequests,
+);
+
+router.get(
+  "/owner-request/:userId",
+  auth(Role.ADMIN),
+  ownerController.getSingleOwnerRequest,
+);
+
 router.post(
   "/owner-request",
   auth(Role.ADMIN, Role.PLAYER),
