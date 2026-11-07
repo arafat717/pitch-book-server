@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { Role } from "../../../generated/prisma/enums";
 import { auth } from "../../middleware/checkAuth";
+import { upload } from "../../lib/multer";
 import { validateRequest } from "../../middleware/validateRequest";
 import { AuthController } from "./auth.controller";
 import { UserValidation } from "./auth.validation";
@@ -29,6 +30,12 @@ router.get(
   auth(Role.ADMIN, Role.OWNER, Role.PLAYER),
   // validateRequest
   AuthController.getMe,
+);
+router.patch(
+  "/me",
+  auth(Role.ADMIN, Role.OWNER, Role.PLAYER),
+  upload.single("image"),
+  AuthController.updateMe,
 );
 router.post("/refresh-token", AuthController.refreshToken);
 router.post("/google", AuthController.googleLogin);

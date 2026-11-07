@@ -7,7 +7,6 @@ import express, {
 } from "express";
 import httpStatus from "http-status";
 import config from "./app/config";
-import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
 import { AuthRoutes } from "./app/module/auth/auth.route";
 import { OwnerRoutes } from "./app/module/owner/owner.route";
@@ -19,15 +18,32 @@ import { PricingRuleRoutes } from "./app/module/pricerule/Pricingrule.route";
 import { SlotRoutes } from "./app/module/slot/Slot.route";
 import { bookSlotRouter } from "./app/module/booking/booking.route";
 import { payoutRoutes } from "./app/module/payout/payout.route";
+import { globalErrorHandler } from "./app/middleware/globalErrorHandler.js";
 
 const app: Application = express();
 
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    credentials: true,
-  }),
-);
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://turfy-sports.vercel.app",
+];
+
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    console.log("Incoming origin:", origin);
+
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`Not allowed by CORS: ${origin}`));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 // Enable URL-encoded form data parsing
 app.use(express.urlencoded({ extended: true }));

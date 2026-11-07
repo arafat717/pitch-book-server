@@ -94,6 +94,31 @@ const getMe = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateMe = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as unknown as IRequestUser;
+  const payload = req.body?.data ? JSON.parse(req.body.data) : req.body;
+
+  if (!user?.userId) {
+    throw new Error("User information is missing in the request");
+  }
+
+  if (payload.name !== undefined && typeof payload.name !== "string") {
+    throw new Error("Name must be a string");
+  }
+
+  const result = await AuthService.updateMe(user.userId, {
+    name: payload.name,
+    image: req.file,
+  });
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User profile updated successfully",
+    data: result,
+  });
+});
+
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
   if (!req.cookies.refreshToken) {
     throw new Error("Refresh token is missing");
@@ -188,4 +213,5 @@ export const AuthController = {
   forgotPassword,
   resetPassword,
   verifyMail,
+  updateMe,
 };

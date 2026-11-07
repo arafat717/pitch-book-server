@@ -2,6 +2,7 @@
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import ejs from "ejs";
+import type { UploadApiResponse } from "cloudinary";
 import type { TokenPayload } from "google-auth-library";
 import type { JwtPayload, SignOptions } from "jsonwebtoken";
 import path from "path";
@@ -11,6 +12,7 @@ import {
   UserStatus,
 } from "../../../generated/prisma/enums";
 import config from "../../config";
+import { cloudinary } from "../../lib/cloudinary";
 import { googleClient } from "../../lib/googleAuth";
 import { transporter } from "../../lib/nodemailer";
 import { prisma } from "../../lib/prisma";
@@ -255,6 +257,55 @@ const getMe = async (user: IRequestUser) => {
   }
 
   return isUserExists;
+};
+
+type UpdateMePayload = {
+  name?: string;
+  image?: Express.Multer.File;
+};
+
+const updateMe = async (userId: string, payload: UpdateMePayload) => {
+  const name = payload.name?.trim();
+  if (payload.name !== undefined && !name) {
+    throw new Error("Name cannot be empty");
+  }
+
+  if (!name && !payload.image) {
+    throw new Error("Provide a name or profile image to update");
+  }
+
+  const data: { name?: string; profileImageUrl?: string } = {};
+  if (name) {
+    data.name = name;
+  }
+
+  const image = payload.image;
+  if (image) {
+    const uploadResult = await new Promise<UploadApiResponse>(
+      (resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream({ resource_type: "image" }, (error, result) => {
+            if (error) {
+              return reject(error);
+            }
+
+            if (!result) {
+              return reject(new Error("No result returned from Cloudinary"));
+            }
+
+            resolve(result);
+          })
+          .end(image.buffer);
+      },
+    );
+    data.profileImageUrl = uploadResult.secure_url;
+  }
+
+  return prisma.user.update({
+    where: { id: userId },
+    data,
+    omit: { password: true },
+  });
 };
 
 const refreshToken = async (token: string) => {
@@ -576,6 +627,7 @@ export const AuthService = {
   registerPlayer,
   loginUser,
   getMe,
+  updateMe,
   refreshToken,
   googleLogin,
   forgotPassword,

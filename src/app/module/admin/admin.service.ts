@@ -24,6 +24,7 @@ const sendOwnerApplicationStatusEmail = async (
     name,
     businessName,
     status,
+    websiteUrl: config.frontend_url,
   });
 
   await transporter.sendMail({
